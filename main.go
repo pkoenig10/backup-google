@@ -21,7 +21,7 @@ var (
 	credentialsFile = flag.String("credentials-file", "", "The Google service account credentials file")
 	bucketName      = flag.String("bucket-name", "", "The Google Cloud Storage bucket name")
 
-	configFile = flag.String("config-file", "", `The configuration file`)
+	configFile = flag.String("config-file", "", "The configuration file")
 )
 
 func main() {
