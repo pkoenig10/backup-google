@@ -5,7 +5,7 @@ go 1.17
 require (
 	cloud.google.com/go/storage v1.27.0
 	github.com/gobwas/glob v0.2.3
-	google.golang.org/api v0.97.0
+	google.golang.org/api v0.98.0
 	gopkg.in/yaml.v2 v2.4.0
 )
 
