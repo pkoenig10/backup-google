@@ -5,7 +5,7 @@ go 1.19
 require (
 	cloud.google.com/go/storage v1.29.0
 	github.com/gobwas/glob v0.2.3
-	google.golang.org/api v0.110.0
+	google.golang.org/api v0.111.0
 	gopkg.in/yaml.v2 v2.4.0
 )
 
