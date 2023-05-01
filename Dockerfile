@@ -11,7 +11,7 @@ RUN CGO_ENABLED=0 \
     GOARCH=$TARGETARCH \
     go build
 
-FROM gcr.io/distroless/static:latest@sha256:3c5767883bc3ad6c4ad7caf97f313e482f500f2c214f78e452ac1ca932e1bf7f
+FROM gcr.io/distroless/static:latest@sha256:7198a357ff3a8ef750b041324873960cf2153c11cc50abb9d8d5f8bb089f6b4e
 
 COPY --from=builder /app/backup-google /
 
