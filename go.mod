@@ -3,7 +3,7 @@ module github.com/pkoenig10/backup-google
 go 1.19
 
 require (
-	cloud.google.com/go/storage v1.31.0
+	cloud.google.com/go/storage v1.32.0
 	github.com/gobwas/glob v0.2.3
 	google.golang.org/api v0.134.0
 	gopkg.in/yaml.v2 v2.4.0
