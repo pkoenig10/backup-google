@@ -1,7 +1,6 @@
 module github.com/pkoenig10/backup-google
 
-go 1.21
-toolchain go1.23.7
+go 1.24.0
 
 require (
 	cloud.google.com/go/storage v1.47.0
