@@ -4,23 +4,28 @@
 
 A backup service using [Google Cloud Storage](https://cloud.google.com/storage).
 
-Files are selected using the provided [configuration](#configuration) and backed up using a [service account](https://cloud.google.com/iam/docs/service-accounts).
+Files are selected using the provided [configuration file](#configuration-file) and backed up using a [service account](https://cloud.google.com/iam/docs/service-accounts).
 
 ## Configuration
 
-Configuration is provided using command-line flags and a YAML configuration file.
-
-Detailed usage information is available using the `-help` flag.
-
 ### Credentials
 
-If a credentials file is not provided, service account credentials will be retrieved using [Google Application Default Credentials (ADC)](https://cloud.google.com/docs/authentication/production).
+Service account credentials are obtained using [Google Application Default Credentials (ADC)](https://docs.cloud.google.com/docs/authentication/application-default-credentials).
+
+### Environment variables
+
+| Variable | Description | Required? | Default |
+|:-|:-|:-:|:-:|
+| `BUCKET_NAME` | The Google Cloud Storage bucket name | Yes | - |
+| `CONFIG_PATH` | The configation file path. | No | `config.yml` |
 
 ### Configuration file
 
-- `files`
+The configuration file is a YAML file with the following properties:
 
-    Glob patterns of files to backup. The [gobwas/glob](https://github.com/gobwas/glob) syntax is used to compile patterns.
+| Property | Object | Description |
+|:-|:-:|:-|
+| `files` | Array | Glob patterns of files to backup. The [gobwas/glob](https://github.com/gobwas/glob) syntax is used to compile patterns. |
 
 #### Example
 

@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"flag"
 	"fmt"
 	"hash/crc32"
 	"io/fs"
@@ -13,27 +12,15 @@ import (
 
 	"cloud.google.com/go/storage"
 	"github.com/gobwas/glob"
-	"google.golang.org/api/option"
 	"gopkg.in/yaml.v2"
 )
 
-var (
-	credentialsFile = flag.String("credentials-file", "", "The Google service account credentials file")
-	bucketName      = flag.String("bucket-name", "", "The Google Cloud Storage bucket name")
-
-	configFile = flag.String("config-file", "", "The configuration file")
-)
-
 func main() {
-	flag.Parse()
+	bucketName := getEnv("BUCKET_NAME", "", true)
 
-	if *bucketName == "" {
-		log.Fatalf("Bucket name is not configured")
-	}
+	configPath := getEnv("CONFIG_PATH", "config.yml", false)
 
-	now := time.Now()
-
-	config, err := newConfig()
+	config, err := newConfig(configPath)
 	if err != nil {
 		log.Fatalf("Error creating config: %v", err)
 	}
@@ -43,7 +30,7 @@ func main() {
 		log.Fatalf("Error creating matcher: %v", err)
 	}
 
-	client, err := newClient()
+	client, err := newClient(bucketName)
 	if err != nil {
 		log.Fatalf("Error creating client: %v", err)
 	}
@@ -68,6 +55,8 @@ func main() {
 		return
 	}
 
+	now := time.Now()
+
 	for _, path := range paths {
 		data, err := os.ReadFile(path)
 		if err != nil {
@@ -87,21 +76,21 @@ type Config struct {
 	Files []string `json:"files"`
 }
 
-func newConfig() (*Config, error) {
+func newConfig(configPath string) (*Config, error) {
 	config := Config{}
 
-	if *configFile == "" {
+	if configPath == "" {
 		return &config, nil
 	}
 
-	data, err := os.ReadFile(*configFile)
+	data, err := os.ReadFile(configPath)
 	if err != nil {
-		return nil, fmt.Errorf("error reading configuration file '%v': %v", *configFile, err)
+		return nil, fmt.Errorf("error reading configuration file '%v': %v", configPath, err)
 	}
 
 	err = yaml.Unmarshal(data, &config)
 	if err != nil {
-		return nil, fmt.Errorf("error parsing configuration file '%v': %v", *configFile, err)
+		return nil, fmt.Errorf("error parsing configuration file '%v': %v", configPath, err)
 	}
 
 	return &config, nil
@@ -137,31 +126,28 @@ func (m *Matcher) match(value string) bool {
 }
 
 type Client struct {
-	client *storage.Client
+	client     *storage.Client
+	bucketName string
 }
 
-func newClient() (*Client, error) {
+func newClient(bucketName string) (*Client, error) {
 	ctx := context.Background()
 
-	var options []option.ClientOption
-	if *credentialsFile != "" {
-		options = append(options, option.WithCredentialsFile(*credentialsFile))
-	}
-
-	client, err := storage.NewClient(ctx, options...)
+	client, err := storage.NewClient(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("error creating client: %v", err)
 	}
 
 	return &Client{
-		client: client,
+		client,
+		bucketName,
 	}, nil
 }
 
 func (c *Client) updateObject(path string, data []byte, now time.Time) error {
 	ctx := context.Background()
 
-	object := c.client.Bucket(*bucketName).Object(path)
+	object := c.client.Bucket(c.bucketName).Object(path)
 
 	attrs, err := object.Attrs(ctx)
 	if err != nil && err != storage.ErrObjectNotExist {
@@ -199,4 +185,15 @@ func (c *Client) updateObject(path string, data []byte, now time.Time) error {
 	}
 
 	return nil
+}
+
+func getEnv(name string, defaultValue string, required bool) string {
+	value, ok := os.LookupEnv(name)
+	if !ok {
+		if required {
+			log.Fatalf("Environment varaible '%v' is required but not set", name)
+		}
+		return defaultValue
+	}
+	return value
 }
