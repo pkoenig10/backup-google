@@ -15,8 +15,4 @@ FROM gcr.io/distroless/static:latest@sha256:cd64bec9cec257044ce3a8dd3620cf83b387
 
 COPY --from=builder /app/backup-google /
 
-VOLUME /files
-
-WORKDIR /files
-
 ENTRYPOINT ["/backup-google"]
