@@ -97,27 +97,27 @@ func newConfig(configPath string) (*Config, error) {
 }
 
 type Matcher struct {
-	globs []glob.Glob
+	patterns []*glob.Pattern
 }
 
 func newMatcher(config *Config) (*Matcher, error) {
 	matcher := Matcher{}
 
 	for _, pattern := range config.Files {
-		glob, err := glob.Compile(pattern, '/')
+		pattern, err := glob.Compile(pattern, '/')
 		if err != nil {
 			return nil, fmt.Errorf("error compiling pattern '%v': %v", pattern, err)
 		}
 
-		matcher.globs = append(matcher.globs, glob)
+		matcher.patterns = append(matcher.patterns, pattern)
 	}
 
 	return &matcher, nil
 }
 
 func (m *Matcher) match(value string) bool {
-	for _, glob := range m.globs {
-		if glob.Match(value) {
+	for _, pattern := range m.patterns {
+		if pattern.Match(value) {
 			return true
 		}
 	}
